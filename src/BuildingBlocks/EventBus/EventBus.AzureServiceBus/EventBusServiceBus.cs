@@ -14,7 +14,7 @@ namespace EventBus.AzureServiceBus
         private ManagementClient managementClient;
         private ILogger logger;
 
-        public EventBusServiceBus(IServiceProvider serviceProvider, EventBusConfig eventBusConfig) : base(serviceProvider, eventBusConfig)
+        public EventBusServiceBus(EventBusConfig eventBusConfig, IServiceProvider serviceProvider) : base(serviceProvider, eventBusConfig)
         {
             logger = serviceProvider.GetService(typeof(ILogger<EventBusServiceBus>)) as ILogger<EventBusServiceBus>;
             managementClient = new ManagementClient(eventBusConfig.EventBusConnectionString);
