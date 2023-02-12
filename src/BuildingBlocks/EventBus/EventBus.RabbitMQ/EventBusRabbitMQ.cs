@@ -139,7 +139,7 @@ namespace EventBus.RabbitMQ
         {
             if (consumerChannel != null)
             {
-                var consumer = new AsyncEventingBasicConsumer(consumerChannel);
+                var consumer = new EventingBasicConsumer(consumerChannel);
 
                 consumer.Received += Consumer_Received;
 
@@ -147,7 +147,7 @@ namespace EventBus.RabbitMQ
             }
         }
 
-        private async Task Consumer_Received(object sender, BasicDeliverEventArgs @event)
+        private void Consumer_Received(object sender, BasicDeliverEventArgs @event)
         {
             var eventName = @event.RoutingKey;
             eventName = ProcessEventName(eventName);
@@ -155,7 +155,7 @@ namespace EventBus.RabbitMQ
 
             try
             {
-                await ProcessEvent(eventName, message);
+                ProcessEvent(eventName, message).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
