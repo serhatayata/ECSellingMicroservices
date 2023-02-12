@@ -6,7 +6,7 @@ namespace CatalogService.Api.Extensions
 {
     public static class HostExtension
     {
-        public static IWebHost MigrateDbContext<TContext>(this IWebHost host, Action<TContext, IServiceProvider> seeder) where TContext : DbContext
+        public static WebApplication MigrateDbContext<TContext>(this WebApplication host, Action<TContext, IServiceProvider> seeder) where TContext : DbContext
         {
             using (var scope = host.Services.CreateScope())
             {
@@ -15,7 +15,7 @@ namespace CatalogService.Api.Extensions
                 var logger = services.GetRequiredService<ILogger<TContext>>();
 
                 var context = services.GetService<TContext>();
-
+                 
                 try
                 {
                     logger.LogInformation("Migrating database associated with context {DbContextName}", typeof(TContext).Name);

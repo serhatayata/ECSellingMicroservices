@@ -1,6 +1,6 @@
 ﻿CatalogType
 Mug
-T-shirt
+T-Shirt
 Sheet
 USB Memory Stick
 CatalogTypeTestOne
