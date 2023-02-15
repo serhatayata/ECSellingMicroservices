@@ -26,7 +26,7 @@ namespace PaymentService.Api.IntegrationEvents.EventHandlers
             IntegrationEvent paymentEvent = paymentSuccessFlag ? new OrderPaymentSuccessIntegrationEvent(@event.OrderId) :
                                                                  new OrderPaymentFailedIntegrationEvent(@event.OrderId, "This is a payment error message");
 
-            logger.LogInformation($"OrderCreatedIntegrationEventHandler in PaymentService is fired with PaymentSuccess : {paymentSuccessFlag}, orderId : {@event.OrderId}");
+            logger.LogInformation($"OrderStartedIntegrationEventHandler in PaymentService is fired with PaymentSuccess : {paymentSuccessFlag}, orderId : {@event.OrderId}");
 
             eventBus.Publish(paymentEvent);
 

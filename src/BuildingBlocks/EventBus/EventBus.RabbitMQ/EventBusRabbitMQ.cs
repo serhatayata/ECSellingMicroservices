@@ -83,6 +83,11 @@ namespace EventBus.RabbitMQ
                                              autoDelete: false,
                                              arguments: null);
 
+                //Binding process has to be on consumer side, but we do this here to test...
+                consumerChannel.QueueBind(queue: GetSubName(eventName),
+                              exchange: EventBusConfig.DefaultTopicName,
+                              routingKey: eventName);
+
                 consumerChannel.BasicPublish(
                     exchange: EventBusConfig.DefaultTopicName,
                     routingKey: eventName,
@@ -118,7 +123,7 @@ namespace EventBus.RabbitMQ
             StartBasicConsume(eventName);
         }
 
-        public override void UnSubscribe<T, TH>()
+        public override void UnSubscribe<T, TH>() 
         {
             //At constructor, we created an event for on event removed so that the queue can be removed.
             SubsManager.RemoveSubscription<T, TH>();

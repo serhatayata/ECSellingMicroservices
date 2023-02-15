@@ -2,6 +2,7 @@ using EventBus.Base;
 using EventBus.Base.Abstraction;
 using EventBus.Factory;
 using PaymentService.Api.IntegrationEvents.EventHandlers;
+using PaymentService.Api.IntegrationEvents.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -12,7 +13,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddLogging(configure => configure.AddConsole());
+builder.Services.AddLogging(configure => {
+    configure.AddConsole();
+    configure.AddDebug();
+});
 builder.Services.AddTransient<OrderStartedIntegrationEventHandler>();
 
 builder.Services.AddSingleton<IEventBus>(sp =>
@@ -43,6 +47,10 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+IEventBus eventBus = app.Services.GetRequiredService<IEventBus>();
+eventBus.Subscribe<OrderStartedIntegrationEvent, OrderStartedIntegrationEventHandler>();
+
 #endregion
 
 app.Run();
