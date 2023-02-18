@@ -77,16 +77,17 @@ namespace EventBus.RabbitMQ
                 var properties = consumerChannel.CreateBasicProperties();
                 properties.DeliveryMode = 2; //Persistent
 
-                consumerChannel.QueueDeclare(queue: GetSubName(eventName),
-                                             durable: true,
-                                             exclusive: false,
-                                             autoDelete: false,
-                                             arguments: null);
+                //QUEUE BIND AND DECLARE HAS TO EXIST IN CONSUMER SIDE, WE CAN OPEN THEM FOR A TEST
+                //consumerChannel.QueueDeclare(queue: GetSubName(eventName),
+                //                             durable: true,
+                //                             exclusive: false,
+                //                             autoDelete: false,
+                //                             arguments: null);
 
                 //Binding process has to be on consumer side, but we do this here to test...
-                consumerChannel.QueueBind(queue: GetSubName(eventName),
-                              exchange: EventBusConfig.DefaultTopicName,
-                              routingKey: eventName);
+                //consumerChannel.QueueBind(queue: GetSubName(eventName),
+                //              exchange: EventBusConfig.DefaultTopicName,
+                //              routingKey: eventName);
 
                 consumerChannel.BasicPublish(
                     exchange: EventBusConfig.DefaultTopicName,
