@@ -22,6 +22,8 @@ builder.Services.AddSwaggerGen();
 #region Configure
 builder.Services.Configure<CatalogSettings>(configuration.GetSection("CatalogSettings"));
 #endregion
+
+builder.Services.ConfigureConsul(configuration);
 #region DbContext
 builder.Services.ConfigureDbContext(configuration);
 #endregion
@@ -35,7 +37,6 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
@@ -50,4 +51,8 @@ app.MigrateDbContext<CatalogContext>((context, services) =>
     new CatalogContextSeed().SeedAsync(context, env, logger).Wait();
 });
 
-app.Run();
+app.Start();
+
+app.RegisterWithConsul(app.Lifetime);
+
+app.WaitForShutdown();
