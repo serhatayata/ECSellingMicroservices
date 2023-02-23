@@ -2,6 +2,8 @@ using BasketService.Api.Core.Application.Repository;
 using BasketService.Api.Core.Application.Services;
 using BasketService.Api.Extensions;
 using BasketService.Api.Infrastructure.Repository;
+using BasketService.Api.IntegrationEvents.EventHandlers;
+using BasketService.Api.IntegrationEvents.Events;
 using EventBus.Base;
 using EventBus.Base.Abstraction;
 using EventBus.Factory;
@@ -24,6 +26,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IBasketRepository, RedisBasketRepository>();
 builder.Services.AddTransient<IIdentityService, IdentityService>();
+
+builder.Services.AddTransient<OrderCreatedIntegrationEventHandler>();
 
 builder.Services.AddSingleton<IEventBus>(sp =>
 {
@@ -49,9 +53,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+#region EventHandlers
+var eventBus = app.Services.GetRequiredService<IEventBus>();
+eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHandler>();
+#endregion
 #endregion
 
 app.Start();

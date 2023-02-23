@@ -22,6 +22,17 @@
       "UpstreamPathTemplate": "/auth",
       "UpstreamHttpMethod": [ "Post" ],
       "UpstreamScheme": "http"
+    },
+    // BASKET SERVICE
+    {
+      "UseServiceDiscovery": true,
+      "ServiceName": "BasketService",
+      "DownstreamPathTemplate": "/api/basket/{everything}",
+      "DownstreamScheme": "http",
+
+      "UpstreamPathTemplate": "/basket/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "UpstreamScheme": "http"
     }
   ],
   "GlobalConfiguration": {
