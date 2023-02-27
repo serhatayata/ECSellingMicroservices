@@ -1,0 +1,4 @@
+﻿CardType
+Amex
+MasterCard
+Capital One

@@ -23,14 +23,14 @@ namespace OrderService.Infrastructure.Repositories
         public IUnitOfWork UnitOfWork { get; }
 
         #region AddAsync
-        public async Task<T> AddAsync(T entity)
+        public virtual async Task<T> AddAsync(T entity)
         {
             await dbContext.Set<T>().AddAsync(entity);
             return entity;
         }
         #endregion
         #region Get
-        public async Task<List<T>> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes)
+        public virtual async Task<List<T>> Get(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = dbContext.Set<T>();
 
@@ -48,24 +48,24 @@ namespace OrderService.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
-        public Task<List<T>> Get(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes)
+        public virtual Task<List<T>> Get(Expression<Func<T, bool>> filter = null, params Expression<Func<T, object>>[] includes)
         {
             return Get(filter, null, includes);
         }
         #endregion
         #region GetAll
-        public async Task<List<T>> GetAll()
+        public virtual async Task<List<T>> GetAll()
         {
             return await dbContext.Set<T>().ToListAsync();
         }
         #endregion
         #region GetById
-        public async Task<T> GetById(Guid id)
+        public virtual async Task<T> GetById(Guid id)
         {
             return await dbContext.Set<T>().FindAsync(id);
         }
 
-        public async Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes)
+        public async virtual Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = dbContext.Set<T>();
 
@@ -78,7 +78,7 @@ namespace OrderService.Infrastructure.Repositories
         }
         #endregion
         #region GetSingleAsync
-        public async Task<T> GetSingleAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
+        public virtual async Task<T> GetSingleAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = dbContext.Set<T>();
 
@@ -92,7 +92,7 @@ namespace OrderService.Infrastructure.Repositories
 
         #endregion
         #region Update
-        public T Update(T entity)
+        public virtual T Update(T entity)
         {
             dbContext.Set<T>().Update(entity);
             return entity;

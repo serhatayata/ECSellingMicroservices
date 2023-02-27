@@ -1,11 +1,14 @@
-var builder = WebApplication.CreateBuilder(args);
+using OrderService.Infrastructure;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+ConfigurationManager configuration = builder.Configuration;
+IWebHostEnvironment environment = builder.Environment;
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddPersistenceRegistration(configuration);
 
 var app = builder.Build();
 
