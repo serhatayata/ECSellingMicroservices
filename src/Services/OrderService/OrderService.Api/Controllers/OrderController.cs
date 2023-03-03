@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OrderService.Application.Features.Queries.GetOrderDetailById;
 
 namespace OrderService.Api.Controllers
 {
@@ -7,6 +9,19 @@ namespace OrderService.Api.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
+        private readonly IMediator mediator;
 
+        public OrderController(IMediator mediator)
+        {
+            this.mediator = mediator;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderDetailsById(Guid id)
+        {
+            var result = await mediator.Send(new GetOrderDetailsQuery(id));
+
+            return Ok(result);
+        }
     }
 }
