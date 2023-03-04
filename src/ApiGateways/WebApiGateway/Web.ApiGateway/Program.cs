@@ -3,7 +3,8 @@ using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 
 var builder = WebApplication.CreateBuilder(args);
-
+ConfigurationManager configuration = builder.Configuration;
+IWebHostEnvironment environment = builder.Environment;
 
 #region SERVICES
 builder.Services.AddControllers();
@@ -18,6 +19,23 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
     .AddJsonFile("Configurations/ocelot.json")
     .AddEnvironmentVariables();
 });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.WithOrigins(
+                configuration["Services:BlazorWebApp"],
+                configuration["Services:PaymentService"],
+                configuration["Services:OrderService"],
+                configuration["Services:BasketService"],
+                configuration["Services:CatalogService"],
+                configuration["Services:IdentityService"]
+            ).AllowAnyMethod()
+             .AllowAnyHeader()
+             .AllowCredentials();
+    });
+});
 #endregion
 
 var app = builder.Build();
@@ -31,6 +49,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
+app.UseCors("CorsPolicy");
 await app.UseOcelot();
 
 app.MapControllers();

@@ -9,10 +9,10 @@
             <EditForm Model="@userLoginRequest" OnValidSubmit="LoginProcess">
                 <DataAnnotationsValidator />
 
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <input @bind-value="userLoginRequest.UserName" class="form-control form-control-lg" type="text" placeholder="User Name"/>
                 </div>
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <input @bind-value="userLoginRequest.Password" class="form-control form-control-lg" type="password" placeholder="Password"/>
                 </div>
                 <div class="form-group">

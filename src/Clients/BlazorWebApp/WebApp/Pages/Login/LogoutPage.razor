@@ -1,0 +1,26 @@
+﻿@page "/logout"
+
+@using System.Web;
+
+<h3>LogoutPage</h3>
+
+@code {
+
+    [Inject]
+    IIdentityService identityService { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    protected override void OnInitialized()
+    {
+        identityService.Logout();
+
+        var coll = HttpUtility.ParseQueryString(new Uri(navigationManager.Uri).Query); // Currency url will be parsed and return as collection
+
+        // if return url exists , return to return url, if not return to home
+        string returnUrl = coll.Get("returnUrl") ?? "/";
+
+        navigationManager.NavigateTo(returnUrl);
+    }
+}

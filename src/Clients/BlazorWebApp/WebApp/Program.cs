@@ -4,6 +4,8 @@ using WebApp;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using WebApp.Utils;
+using WebApp.Application.Services.Interfaces;
+using WebApp.Application.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -14,6 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+builder.Services.AddTransient<IIdentityService, IdentityService>();
 
 // This is only creates http clients for api gateway - not correct but for this app
 builder.Services.AddScoped(sp =>

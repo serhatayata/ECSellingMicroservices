@@ -1,6 +1,8 @@
 
 NotificationService -> ConsoleApp
 
+BlazorWebApp -> http://localhost:2000
+
 Web.ApiGateway -> http://localhost:5000
 PaymentService.Api -> http://localhost:5001
 OrderService.Api -> http://localhost:5002
