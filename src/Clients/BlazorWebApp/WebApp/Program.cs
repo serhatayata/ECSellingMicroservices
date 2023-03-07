@@ -17,6 +17,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddTransient<IIdentityService, IdentityService>();
+builder.Services.AddTransient<ICatalogService, CatalogService>();
 
 // This is only creates http clients for api gateway - not correct but for this app
 builder.Services.AddScoped(sp =>

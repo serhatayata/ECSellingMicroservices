@@ -1,6 +1,7 @@
 using CatalogService.Api.Extensions;
 using CatalogService.Api.Infrastructure;
 using CatalogService.Api.Infrastructure.Context;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
 {
@@ -35,7 +36,11 @@ var app = builder.Build();
 #region PIPELINE
 app.UseSwagger();
 app.UseSwaggerUI();
-
+app.UseStaticFiles(new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(environment.ContentRootPath, "Pics")),
+    RequestPath = "/pics"
+});
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
