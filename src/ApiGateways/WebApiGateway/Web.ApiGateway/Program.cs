@@ -1,6 +1,7 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
+using Web.ApiGateway.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -19,6 +20,19 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
     .AddJsonFile("Configurations/ocelot.json")
     .AddEnvironmentVariables();
 });
+
+#region HttpClient
+builder.Services.AddSingleton<IHttpContextAccessor>();
+builder.Services.AddHttpClient("basket", c =>
+{
+    c.BaseAddress = new Uri(configuration["urls:basket"]);
+}).AddHttpMessageHandler<HttpClientDelegatingHandler>();
+
+builder.Services.AddHttpClient("catalog", c =>
+{
+    c.BaseAddress = new Uri(configuration["urls:catalog"]);
+}).AddHttpMessageHandler<HttpClientDelegatingHandler>();
+#endregion
 
 builder.Services.AddCors(options =>
 {
