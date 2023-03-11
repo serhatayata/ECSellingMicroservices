@@ -2,16 +2,36 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 using Web.ApiGateway.Infrastructure;
+using Web.ApiGateway.Services;
+using Web.ApiGateway.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
 
 #region SERVICES
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.WithOrigins(
+                "http://localhost:2000",
+                configuration["Services:PaymentService"],
+                configuration["Services:OrderService"],
+                configuration["Services:BasketService"],
+                configuration["Services:CatalogService"],
+                configuration["Services:IdentityService"]
+            )
+             .AllowAnyMethod()
+             .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOcelot().AddConsul();
+builder.Services.AddHttpContextAccessor();
 
 builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
 {
@@ -21,8 +41,13 @@ builder.Host.ConfigureAppConfiguration((hostingContext, config) =>
     .AddEnvironmentVariables();
 });
 
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IBasketService, BasketService>();
+
+builder.Services.AddTransient<HttpClientDelegatingHandler>();
+
 #region HttpClient
-builder.Services.AddSingleton<IHttpContextAccessor>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddHttpClient("basket", c =>
 {
     c.BaseAddress = new Uri(configuration["urls:basket"]);
@@ -33,23 +58,6 @@ builder.Services.AddHttpClient("catalog", c =>
     c.BaseAddress = new Uri(configuration["urls:catalog"]);
 }).AddHttpMessageHandler<HttpClientDelegatingHandler>();
 #endregion
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", builder =>
-    {
-        builder.WithOrigins(
-                configuration["Services:BlazorWebApp"],
-                configuration["Services:PaymentService"],
-                configuration["Services:OrderService"],
-                configuration["Services:BasketService"],
-                configuration["Services:CatalogService"],
-                configuration["Services:IdentityService"]
-            ).AllowAnyMethod()
-             .AllowAnyHeader()
-             .AllowCredentials();
-    });
-});
 #endregion
 
 var app = builder.Build();
@@ -61,10 +69,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
-
+app.UseRouting();
 app.UseCors("CorsPolicy");
+
+app.UseEndpoints(endpoints => {
+    endpoints.MapControllerRoute(
+    name: "default",
+    pattern: "{controller}/{action}/{id?}");
+});
+
 await app.UseOcelot();
 
 app.MapControllers();

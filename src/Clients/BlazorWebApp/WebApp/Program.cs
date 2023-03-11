@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using WebApp.Utils;
 using WebApp.Application.Services.Interfaces;
 using WebApp.Application.Services;
+using WebApp.Infrastructure;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -16,8 +17,12 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+
+builder.Services.AddTransient<AuthTokenHandler>();
+
 builder.Services.AddTransient<IIdentityService, IdentityService>();
 builder.Services.AddTransient<ICatalogService, CatalogService>();
+builder.Services.AddTransient<IBasketService, BasketService>();
 
 // This is only creates http clients for api gateway - not correct but for this app
 builder.Services.AddScoped(sp =>
@@ -30,6 +35,6 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddHttpClient("ApiGatewayHttpClient", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5000/");
-});
+}).AddHttpMessageHandler<AuthTokenHandler>();
 
 await builder.Build().RunAsync();

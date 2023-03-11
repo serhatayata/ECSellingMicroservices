@@ -21,7 +21,8 @@
                 request.Headers.Add("Authorization", new List<string>() { authorizationHeader });
             }
 
-            return await base.SendAsync(request, cancellationToken);
+            var result = await base.SendAsync(request, cancellationToken);
+            return result;
         }
     }
 }

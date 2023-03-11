@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using WebApp.Application.Services.Interfaces;
 using WebApp.Domain.Models.User;
 using WebApp.Extensions;
@@ -29,7 +30,9 @@ namespace WebApp.Application.Services
         /// <returns>user name value</returns>
         public string GetUserName()
         {
-            return syncLocalStorageService.GetUserName();
+            var value = syncLocalStorageService.GetUserName();
+            var deserialized = value == null ? null : JsonSerializer.Deserialize<string>(value);
+            return deserialized;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Web.ApiGateway.Extensions;
+﻿using System;
+using Web.ApiGateway.Extensions;
 using Web.ApiGateway.Models.Catalog;
 using Web.ApiGateway.Services.Interfaces;
 
@@ -18,14 +19,21 @@ namespace Web.ApiGateway.Services
         public async Task<CatalogItem> GetCatalogItemAsync(int id)
         {
             var client = httpClientFactory.CreateClient("catalog");
-            var response = await client.GetResponseAsync<CatalogItem>("/items/" + id);
+            var uri = client.BaseAddress + "/items/";
+            var response = await client.GetResponseAsync<CatalogItem>(uri + id);
 
             return response;
         }
 
-        public async Task<IEnumerable<CatalogItem>> GetCatalogItemsAsync(IEnumerable<int> id)
+        public async Task<IEnumerable<CatalogItem>> GetCatalogItemsAsync(IEnumerable<int> ids)
         {
-            return null;
+            string stringIds = string.Join(",", ids);
+
+            var client = httpClientFactory.CreateClient("catalog");
+            var uri = client.BaseAddress + "/items/";
+            var response = await client.GetResponseAsync<List<CatalogItem>>(uri + stringIds);
+
+            return response;
         }
     }
 }

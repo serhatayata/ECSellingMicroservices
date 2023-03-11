@@ -1,4 +1,5 @@
-﻿using WebApp.Application.Services.Dtos;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using WebApp.Application.Services.Dtos;
 using WebApp.Application.Services.Interfaces;
 using WebApp.Domain.Models.ViewModels;
 using WebApp.Extensions;
@@ -27,7 +28,7 @@ namespace WebApp.Application.Services
                 BasketId = identityService.GetUserName()
             };
             // Api gateway aggregation
-            await apiClient.PostAsync("basket/items", model);
+            await apiClient.PostAsync("basket/items-add", model);
         }
 
         public Task Checkout(BasketDTO basket)
@@ -37,7 +38,13 @@ namespace WebApp.Application.Services
 
         public async Task<Basket> GetBasket()
         {
-            var response = await apiClient.GetResponseAsync<Basket>("basket/" + identityService.GetUserName());
+            var queryString = new Dictionary<string, string>()
+            {
+                { "id", identityService.GetUserName() }
+            };
+            var uri = QueryHelpers.AddQueryString(apiClient.BaseAddress + "basket/get-basket-by-id", queryString);
+
+            var response = await apiClient.GetResponseAsync<Basket>(uri);
 
             return response ?? new Basket() { BuyerId = identityService.GetUserName() };
         }

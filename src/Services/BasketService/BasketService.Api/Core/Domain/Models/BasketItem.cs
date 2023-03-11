@@ -21,10 +21,6 @@ namespace BasketService.Api.Core.Domain.Models
         /// </summary>
         public decimal UnitPrice { get; set; }
         /// <summary>
-        /// Basket product old unit price - with discount
-        /// </summary>
-        public decimal OldUnitPrice { get; set; }
-        /// <summary>
         /// Basket product's quantity
         /// </summary>
         public int Quantity { get; set; }
