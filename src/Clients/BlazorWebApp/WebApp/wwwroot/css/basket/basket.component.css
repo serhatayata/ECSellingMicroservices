@@ -77,3 +77,25 @@
   transition: all 0.35s;
 }
 
+.summary {
+    padding-left:20px;
+}
+
+.items {
+    padding-left:20px;
+    margin-left:10px;
+}
+
+.items-row {
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.product-image {
+    max-width:120px;
+    max-height:100px;
+}
+
+.back-to-shop {
+    margin: 10px 0px 10px 15px;
+}

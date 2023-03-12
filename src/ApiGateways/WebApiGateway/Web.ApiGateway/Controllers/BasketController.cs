@@ -39,7 +39,7 @@ namespace Web.ApiGateway.Controllers
             if (productExists != null)
                 productExists.Quantity += request.Quantity;
             else
-                currentBasket.Items.Add(new BasketDataItem() { UnitPrice = item.Price, PictureUrl = item.PictureUrl ?? string.Empty, 
+                currentBasket.Items.Add(new BasketDataItem() { UnitPrice = item.Price, PictureUrl = item.PictureUri ?? string.Empty, 
                                                                ProductId = item.Id, Quantity = request.Quantity, 
                                                                Id = Guid.NewGuid().ToString(), ProductName = item.Name });
 
