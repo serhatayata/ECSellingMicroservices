@@ -24,6 +24,8 @@ builder.Services.AddTransient<IIdentityService, IdentityService>();
 builder.Services.AddTransient<ICatalogService, CatalogService>();
 builder.Services.AddTransient<IBasketService, BasketService>();
 
+builder.Services.AddSingleton<AppStateManager>();
+
 // This is only creates http clients for api gateway - not correct but for this app
 builder.Services.AddScoped(sp =>
 {

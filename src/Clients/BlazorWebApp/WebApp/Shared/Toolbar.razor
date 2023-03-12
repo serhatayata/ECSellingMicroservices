@@ -15,8 +15,8 @@ else
     [Inject]
     IIdentityService identityService { get; set; }
 
-    //[Inject]
-    //AppState appState { get; set; }
+    [Inject]
+    AppStateManager appState { get; set; }
 
     [Inject]
     IBasketService basketService { get; set; }
@@ -26,8 +26,8 @@ else
 
     protected override void OnAfterRender(bool firstRender)
     {
-        //if (firstRender)
-        //    appState.StateChanged += async (source, property) => await AppState_StateChanged(source, property);
+        if (firstRender)
+            appState.StateChanged += async (source, property) => await AppState_StateChanged(source, property);
     }
 
     protected override async Task OnInitializedAsync()
@@ -49,28 +49,28 @@ else
         return count;
     }
 
-    //private async Task AppState_StateChanged(ComponentBase source, string property)
-    //{
-    //    if (source == this)
-    //        return;
+    private async Task AppState_StateChanged(ComponentBase source, string property)
+    {
+        if (source == this)
+            return;
 
-    //    if (property == "increase")
-    //        basketItemCount++;
-    //    else if (property == "updatebasket")
-    //        await calculateItemCount();
-    //    else if (property == "login")
-    //        await calculateItemCount();
+        if (property == "increase")
+            basketItemCount++;
+        else if (property == "updatebasket")
+            await calculateItemCount();
+        else if (property == "login")
+            await calculateItemCount();
 
-    //    await InvokeAsync(StateHasChanged);
-    //}
+        await InvokeAsync(StateHasChanged);
+    }
 
     private void GoLoginPage()
     {
-        navigationManager.NavigateTo($"login?returnUrl={Uri.EscapeDataString(navigationManager.Uri)}", true);
+        navigationManager.NavigateTo($"login?returnUrl={Uri.EscapeDataString(navigationManager.Uri)}", false);
     }
 
     private void GoLogoutPage()
     {
-        navigationManager.NavigateTo($"logout?returnUrl={Uri.EscapeDataString(navigationManager.Uri)}", true);
+        navigationManager.NavigateTo($"logout?returnUrl={Uri.EscapeDataString(navigationManager.Uri)}", false);
     }
 }
