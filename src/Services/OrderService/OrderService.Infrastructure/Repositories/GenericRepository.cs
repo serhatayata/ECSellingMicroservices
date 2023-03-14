@@ -20,7 +20,7 @@ namespace OrderService.Infrastructure.Repositories
             this.dbContext = dbContext;
         }
 
-        public IUnitOfWork UnitOfWork { get; }
+        public IUnitOfWork UnitOfWork => dbContext;
 
         #region AddAsync
         public virtual async Task<T> AddAsync(T entity)

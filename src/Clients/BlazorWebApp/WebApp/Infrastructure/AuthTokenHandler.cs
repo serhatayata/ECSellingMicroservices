@@ -20,7 +20,8 @@ namespace WebApp.Infrastructure
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", token);
             }
 
-            return base.SendAsync(request, cancellationToken);
+            var response = base.SendAsync(request, cancellationToken);
+            return response;
         }
     }
 }

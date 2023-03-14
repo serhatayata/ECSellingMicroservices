@@ -26,19 +26,19 @@ namespace OrderService.Infrastructure.Context
 
                     if (!context.CardTypes.Any())
                     {
-                        context.CardTypes.AddRange(useCustomizationData ? 
+                        context.CardTypes.AddRange(useCustomizationData ?
                                           GetCardTypesFromFile(contentRootPath, logger) : GetPredefinedCardTypes());
 
-                        await context.SaveChangesAsync();
+                        context.SaveChanges();
                     }
 
                     if (!context.OrderStatus.Any())
                     {
-                        context.OrderStatus.AddRange(useCustomizationData ? 
+                        context.OrderStatus.AddRange(useCustomizationData ?
                                             GetOrderStatusFromFile(contentRootPath, logger) : GetPredefinedOrderStatus());
                     }
 
-                    await context.SaveChangesAsync();
+                    context.SaveChanges();
                 }
             });
         }
@@ -76,7 +76,7 @@ namespace OrderService.Infrastructure.Context
             var list = fileContent.Select(i => new OrderStatus(id++, i)).Where(i => i != null);
 
             return list;
-        } 
+        }
 
         private IEnumerable<OrderStatus> GetPredefinedOrderStatus()
         {
@@ -99,7 +99,7 @@ namespace OrderService.Infrastructure.Context
                             sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
                             onRetry: (exception, timeSpan, retry, ctx) =>
                             {
-                                logger.LogWarning(exception, "[{prefix}] Exception {ExceptionType} with message {Message}" ,prefix, exception, exception.Message);
+                                logger.LogWarning(exception, "[{prefix}] Exception {ExceptionType} with message {Message}", prefix, exception, exception.Message);
                             });
         }
     }

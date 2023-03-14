@@ -19,10 +19,10 @@ builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
 ConfigurationManager configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
 
-builder.Host.UseDefaultServiceProvider((context, options) =>
-{
-    options.ValidateOnBuild = false;
-}).ConfigureAppConfiguration(i => i.AddConfiguration(configuration));
+//builder.Host.UseDefaultServiceProvider((context, options) =>
+//{
+//    options.ValidateOnBuild = false;
+//}).ConfigureAppConfiguration(i => i.AddConfiguration(configuration));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

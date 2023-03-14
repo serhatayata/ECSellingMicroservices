@@ -12,13 +12,14 @@ namespace WebApp.Application.Services.Dtos
         public string State { get; set; }
         [Required]
         public string Country { get; set; }
-        public string ZipCode { get; set; }
+        [Required]
+        public string ZipCode { get; set; } = "0";
         [Required]
         public string CardNumber { get; set; }
         [Required]
         public string CardHolderName { get; set; }
         [Required]
-        public string CardExpirationSort { get; set; }
+        public string CardExpirationShort { get; set; }
         [Required]
         public DateTime CardExpiration { get; set; }
         [Required]

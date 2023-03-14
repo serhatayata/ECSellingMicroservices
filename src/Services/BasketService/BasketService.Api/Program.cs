@@ -24,7 +24,7 @@ builder.Services.AddSingleton(sp => sp.ConfigureRedis(configuration));
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IBasketRepository, RedisBasketRepository>();
+builder.Services.AddTransient<IBasketRepository, RedisBasketRepository>();
 builder.Services.AddTransient<IIdentityService, IdentityService>();
 
 builder.Services.AddTransient<OrderCreatedIntegrationEventHandler>();

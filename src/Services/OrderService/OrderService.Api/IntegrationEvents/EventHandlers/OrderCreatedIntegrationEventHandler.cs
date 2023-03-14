@@ -18,7 +18,7 @@ namespace OrderService.Api.IntegrationEvents.EventHandlers
 
         public async Task Handle(OrderCreatedIntegrationEvent @event)
         {
-            logger.LogInformation("Handling integration event : {IntegrationEventId} at {AppName} - ({IntegrationEvent})", @event.Id, typeof(Program).Namespace, @event);
+            //logger.LogInformation("Handling integration event : {IntegrationEventId} at {AppName} - ({IntegrationEvent})", @event.Id, typeof(Program).Namespace, nameof(OrderCreatedIntegrationEvent));
 
             var createOrderCommand = new CreateOrderCommand(@event.Basket.Items, @event.UserId, @event.UserName,
                                                             @event.City, @event.City, @event.Street, 
