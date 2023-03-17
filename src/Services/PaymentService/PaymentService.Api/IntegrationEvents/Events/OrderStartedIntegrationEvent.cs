@@ -4,14 +4,14 @@ namespace PaymentService.Api.IntegrationEvents.Events
 {
     public class OrderStartedIntegrationEvent:IntegrationEvent
     {
-        public int OrderId { get; set; }
+        public string OrderId { get; set; }
 
         public OrderStartedIntegrationEvent()
         {
 
         }
 
-        public OrderStartedIntegrationEvent(int orderId)
+        public OrderStartedIntegrationEvent(string orderId)
         {
             OrderId = orderId;
         }

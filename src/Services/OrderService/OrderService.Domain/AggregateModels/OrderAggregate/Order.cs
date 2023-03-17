@@ -19,7 +19,7 @@ namespace OrderService.Domain.AggregateModels.OrderAggregate
         public Address Address { get; private set; }
         private int orderStatusId;
         public OrderStatus OrderStatus { get; private set; }
-        private readonly List<OrderItem> _orderItems;
+        private readonly List<OrderItem> _orderItems = new();
         public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
         public Guid? PaymentMethodId { get; set; }
         protected Order()

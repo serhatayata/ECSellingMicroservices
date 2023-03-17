@@ -15,10 +15,10 @@ namespace OrderService.Infrastructure
             {
                 opt.UseSqlServer(configuration["OrderDbConnectionString"]);
                 opt.EnableSensitiveDataLogging();
-            });
+            }, ServiceLifetime.Transient);
 
-            services.AddScoped<IBuyerRepository, BuyerRepository>();
-            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddTransient<IBuyerRepository, BuyerRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
 
             var optionsBuilder = new DbContextOptionsBuilder<OrderDbContext>()
                                 .UseSqlServer(configuration["OrderDbConnectionString"]);

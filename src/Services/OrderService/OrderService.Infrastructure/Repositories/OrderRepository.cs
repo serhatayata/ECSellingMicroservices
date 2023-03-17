@@ -1,4 +1,6 @@
-﻿using OrderService.Application.Interfaces.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using OrderService.Application.Interfaces.Repositories;
 using OrderService.Domain.AggregateModels.OrderAggregate;
 using OrderService.Infrastructure.Context;
 using System;
@@ -12,10 +14,10 @@ namespace OrderService.Infrastructure.Repositories
 {
     public class OrderRepository : GenericRepository<Order>, IOrderRepository
     {
-        private readonly OrderDbContext dbContext;
-        public OrderRepository(OrderDbContext dbContext) : base(dbContext)
+        private readonly IServiceScopeFactory scopeFactory;
+        public OrderRepository(IServiceScopeFactory scopeFactory) : base(scopeFactory)
         {
-            this.dbContext = dbContext;
+            this.scopeFactory = scopeFactory;
         }
 
         /// <summary>
@@ -27,12 +29,17 @@ namespace OrderService.Infrastructure.Repositories
         /// <returns>order</returns>
         public override async Task<Order> GetByIdAsync(Guid id, params Expression<Func<Order, object>>[] includes)
         {
-            var entity = await base.GetByIdAsync(id, includes);
+            using (var scope = this.scopeFactory.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
 
-            if (entity == null)
-                entity = dbContext.Orders.Local.FirstOrDefault(o => o.Id == id);
+                var entity = await base.GetByIdAsync(id, includes);
 
-            return entity;
+                if (entity == null)
+                    entity = dbContext.Orders.Local.FirstOrDefault(o => o.Id == id);
+
+                return entity;
+            }
         } 
     }
 }

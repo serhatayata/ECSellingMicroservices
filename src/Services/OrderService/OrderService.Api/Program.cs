@@ -2,6 +2,7 @@ using EventBus.Base;
 using EventBus.Base.Abstraction;
 using EventBus.Factory;
 using OrderService.Api.Extensions;
+using OrderService.Api.Extensions.Registration;
 using OrderService.Api.Extensions.Registration.EventHandlerRegistration;
 using OrderService.Api.Extensions.Registration.ServiceDiscovery;
 using OrderService.Api.IntegrationEvents.EventHandlers;

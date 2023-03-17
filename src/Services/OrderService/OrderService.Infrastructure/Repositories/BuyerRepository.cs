@@ -1,4 +1,5 @@
-﻿using OrderService.Application.Interfaces.Repositories;
+﻿using Microsoft.Extensions.DependencyInjection;
+using OrderService.Application.Interfaces.Repositories;
 using OrderService.Domain.AggregateModels.BuyerAggregate;
 using OrderService.Infrastructure.Context;
 using System;
@@ -11,9 +12,10 @@ namespace OrderService.Infrastructure.Repositories
 {
     public class BuyerRepository : GenericRepository<Buyer>, IBuyerRepository
     {
-        public BuyerRepository(OrderDbContext dbContext) : base(dbContext)
+        private readonly IServiceScopeFactory scopeFactory;
+        public BuyerRepository(IServiceScopeFactory scopeFactory) : base(scopeFactory)
         {
-
+            this.scopeFactory = scopeFactory;
         }
     }
 }

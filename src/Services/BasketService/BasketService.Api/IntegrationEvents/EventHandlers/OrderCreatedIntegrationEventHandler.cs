@@ -17,7 +17,7 @@ namespace BasketService.Api.IntegrationEvents.EventHandlers
 
         public async Task Handle(OrderCreatedIntegrationEvent @event)
         {
-            //_logger.LogInformation("Handling integration event : {IntegrationEventId} at BasketService.Api - ({@IntegrationEvent})", @event.Id);
+            _logger.LogInformation("Handling integration event : {IntegrationEventId} at BasketService.Api - ({@IntegrationEvent})", @event.Id, nameof(OrderCreatedIntegrationEvent));
 
             await _basketRepository.DeleteBasketAsync(@event.UserId);
         }
