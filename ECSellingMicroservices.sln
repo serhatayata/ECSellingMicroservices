@@ -94,6 +94,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sqlserver", "sqlserver", "{
 		docker-compose-files\sqlserver\docker-compose.yml = docker-compose-files\sqlserver\docker-compose.yml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "graylog", "graylog", "{30A2B061-B495-491A-9698-80B964B5D9D6}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose-files\graylog\docker-compose.yml = docker-compose-files\graylog\docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -203,6 +208,7 @@ Global
 		{00452A07-A862-4542-BBAF-A6EFE9591C1D} = {A71CB200-DC64-4F70-8F8C-0D96598A76F9}
 		{69016C38-2ABE-4A94-ADAD-135DFEB55C00} = {A71CB200-DC64-4F70-8F8C-0D96598A76F9}
 		{056ABE43-CA0B-499E-B993-8E33F15DFFF4} = {A71CB200-DC64-4F70-8F8C-0D96598A76F9}
+		{30A2B061-B495-491A-9698-80B964B5D9D6} = {A71CB200-DC64-4F70-8F8C-0D96598A76F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D2740CF-A14E-4875-A3B1-1D5FDB6197CD}
