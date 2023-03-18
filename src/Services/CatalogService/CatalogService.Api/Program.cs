@@ -2,6 +2,10 @@ using CatalogService.Api.Extensions;
 using CatalogService.Api.Infrastructure;
 using CatalogService.Api.Infrastructure.Context;
 using Microsoft.Extensions.FileProviders;
+using Serilog;
+
+var config = ConfigurationExtension.appConfig;
+var serilogConf = ConfigurationExtension.serilogConfig;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
 {
@@ -11,6 +15,20 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
     EnvironmentName = Environments.Staging,
     WebRootPath = "Pics"
 });
+
+builder.Configuration.AddConfiguration(config);
+
+builder.Host.ConfigureLogging(s => s.ClearProviders()) // Remove all added providers before
+            // https://github.com/serilog/serilog-aspnetcore
+            .UseSerilog(
+            //(context, serv, cfg) =>
+            //{
+            //cfg.ReadFrom.Configuration(context.Configuration)
+            //   .ReadFrom.Services(serv)
+            //   .Enrich.FromLogContext()
+            //   .WriteTo.Console();
+            //}, writeToProviders: true
+            );
 
 ConfigurationManager configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
@@ -43,6 +61,13 @@ app.UseStaticFiles(new StaticFileOptions()
 });
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
+Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(serilogConf)
+                .CreateLogger();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("System Up and Running - Catalog Service");
 
 app.MapControllers();
 #endregion

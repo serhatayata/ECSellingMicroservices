@@ -7,9 +7,26 @@ using BasketService.Api.IntegrationEvents.Events;
 using EventBus.Base;
 using EventBus.Base.Abstraction;
 using EventBus.Factory;
-using RabbitMQ.Client;
+using Serilog;
+
+var config = ConfigurationExtension.appConfig;
+var serilogConf = ConfigurationExtension.serilogConfig;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddConfiguration(config);
+
+builder.Host.ConfigureLogging(s => s.ClearProviders()) // Remove all added providers before
+            // https://github.com/serilog/serilog-aspnetcore
+            .UseSerilog(
+            //(context, serv, cfg) =>
+            //{
+            //cfg.ReadFrom.Configuration(context.Configuration)
+            //   .ReadFrom.Services(serv)
+            //   .Enrich.FromLogContext()
+            //   .WriteTo.Console();
+            //}, writeToProviders: true
+            );
+
 ConfigurationManager configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
 
@@ -57,6 +74,13 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(serilogConf)
+                .CreateLogger();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("System Up and Running - Basket Service");
+
 app.MapControllers();
 
 #region EventHandlers
@@ -64,7 +88,6 @@ var eventBus = app.Services.GetRequiredService<IEventBus>();
 eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHandler>();
 #endregion
 #endregion
-
 app.Start();
 
 app.RegisterWithConsul(app.Lifetime);
