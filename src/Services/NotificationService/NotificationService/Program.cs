@@ -48,7 +48,7 @@ eventBus.Subscribe<OrderPaymentSuccessIntegrationEvent, OrderPaymentSuccessInteg
 eventBus.Subscribe<OrderPaymentFailedIntegrationEvent, OrderPaymentFailedIntegrationEventHandler>();
 
 Console.WriteLine("App is running.");
-Console.ReadLine();
+Console.ReadKey();
 
 #region AppSettings
 //static void BuildConfig(IConfigurationBuilder builder)
