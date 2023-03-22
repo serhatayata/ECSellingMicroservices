@@ -17,7 +17,11 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
 });
 
 builder.Configuration.AddConfiguration(config);
-
+builder.Host.UseDefaultServiceProvider((context, options) =>
+{
+    options.ValidateOnBuild = false;
+    options.ValidateScopes = false;
+});
 builder.Host.ConfigureLogging(s => s.ClearProviders()) // Remove all added providers before
             // https://github.com/serilog/serilog-aspnetcore
             .UseSerilog(
@@ -83,6 +87,6 @@ app.MigrateDbContext<CatalogContext>((context, services) =>
 
 app.Start();
 
-app.RegisterWithConsul(app.Lifetime);
+app.RegisterWithConsul(app.Lifetime, configuration);
 
 app.WaitForShutdown();

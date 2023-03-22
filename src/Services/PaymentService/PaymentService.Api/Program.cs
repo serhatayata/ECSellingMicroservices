@@ -4,6 +4,7 @@ using EventBus.Factory;
 using PaymentService.Api.Extensions;
 using PaymentService.Api.IntegrationEvents.EventHandlers;
 using PaymentService.Api.IntegrationEvents.Events;
+using RabbitMQ.Client;
 using Serilog;
 
 var config = ConfigurationExtension.appConfig;
@@ -11,6 +12,11 @@ var serilogConf = ConfigurationExtension.serilogConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddConfiguration(config);
+builder.Host.UseDefaultServiceProvider((context, options) =>
+{
+    options.ValidateOnBuild = false;
+    options.ValidateScopes = false;
+});
 
 builder.Host.ConfigureLogging(s => s.ClearProviders()) // Remove all added providers before
                                                        // https://github.com/serilog/serilog-aspnetcore
@@ -45,7 +51,18 @@ builder.Services.AddSingleton<IEventBus>(sp =>
         ConnectionRetryCount = 5,
         EventNameSuffix = "IntegrationEvent",
         SubscriberClientAppName = "PaymentService",
-        EventBusType = EventBusType.RabbitMQ
+        EventBusType = EventBusType.RabbitMQ,
+        Connection = new ConnectionFactory()
+        {
+            HostName = "c_rabbitmq",
+            Port = 5672,
+            UserName = "guest",
+            Password = "guest",
+            Ssl =
+            {
+                Enabled = true
+            }
+        }
     };
 
     return EventBusFactory.Create(config, sp);

@@ -7,7 +7,11 @@ var serilogConf = ConfigurationExtension.serilogConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddConfiguration(config);
-
+builder.Host.UseDefaultServiceProvider((context, options) =>
+{
+    options.ValidateOnBuild = false;
+    options.ValidateScopes = false;
+});
 builder.Host.ConfigureLogging(s => s.ClearProviders()) // Remove all added providers before
              // https://github.com/serilog/serilog-aspnetcore
             .UseSerilog(
@@ -58,6 +62,6 @@ app.MapControllers();
 #endregion
 app.Start();
 
-app.RegisterWithConsul(app.Lifetime);
+app.RegisterWithConsul(app.Lifetime, configuration);
 
 app.WaitForShutdown();

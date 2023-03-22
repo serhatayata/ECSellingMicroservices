@@ -17,7 +17,7 @@ namespace OrderService.Api.Extensions.Registration.ServiceDiscovery
             return services;
         }
 
-        public static IApplicationBuilder RegisterWithConsul(this IApplicationBuilder app, IHostApplicationLifetime lifeTime)
+        public static IApplicationBuilder RegisterWithConsul(this IApplicationBuilder app, IHostApplicationLifetime lifeTime, IConfiguration configuration)
         {
             var consulClient = app.ApplicationServices.GetRequiredService<IConsulClient>();
             var loggingFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
@@ -25,20 +25,17 @@ namespace OrderService.Api.Extensions.Registration.ServiceDiscovery
 
             var logger = loggingFactory.CreateLogger<IApplicationBuilder>();
 
-            //Get server IP address
-            var addressFeature = server.Features.Get<IServerAddressesFeature>();
-            var addresses = addressFeature.Addresses;
-            var address = addresses.First();
+            var uri = configuration.GetValue<Uri>("ConsulConfig:ServiceAddress");
+            var serviceName = configuration.GetValue<string>("ConsulConfig:ServiceName");
+            var serviceId = configuration.GetValue<string>("ConsulConfig:ServiceId");
 
-            //Register service with consul
-            var uri = new Uri(address);
             var registration = new AgentServiceRegistration()
             {
-                ID = "OrderService",
-                Name = "OrderService",
+                ID = serviceId ?? "OrderService",
+                Name = serviceName ?? "OrderService",
                 Address = $"{uri.Host}",
                 Port = uri.Port,
-                Tags = new[] { "Order Service", "Order" }
+                Tags = new[] { serviceId, serviceName }
             };
 
             logger.LogInformation("Registering with consul");

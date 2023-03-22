@@ -18,7 +18,7 @@ namespace CatalogService.Api.Extensions
             return services;
         }
 
-        public static IApplicationBuilder RegisterWithConsul(this IApplicationBuilder app, IHostApplicationLifetime lifeTime)
+        public static IApplicationBuilder RegisterWithConsul(this IApplicationBuilder app, IHostApplicationLifetime lifeTime, IConfiguration configuration)
         {
             var consulClient = app.ApplicationServices.GetRequiredService<IConsulClient>();
             var loggingFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
@@ -26,20 +26,17 @@ namespace CatalogService.Api.Extensions
 
             var logger = loggingFactory.CreateLogger<IApplicationBuilder>();
 
-            //Get server IP address
-            var addressFeature = server.Features.Get<IServerAddressesFeature>();
-            var addresses = addressFeature.Addresses;
-            var address = addresses.First();
+            var uri = configuration.GetValue<Uri>("ConsulConfig:ServiceAddress");
+            var serviceName = configuration.GetValue<string>("ConsulConfig:ServiceName");
+            var serviceId = configuration.GetValue<string>("ConsulConfig:ServiceId");
 
-            //Register service with consul
-            var uri = new Uri(address);
             var registration = new AgentServiceRegistration()
             {
-                ID = "CatalogService",
-                Name = "CatalogService",
+                ID = serviceId ?? "CatalogService",
+                Name = serviceName ?? "CatalogService",
                 Address = $"{uri.Host}",
                 Port = uri.Port,
-                Tags = new[] { "Catalog Service", "Catalog" }
+                Tags = new[] { serviceName, serviceId }
             };
 
             logger.LogInformation("Registering with consul");

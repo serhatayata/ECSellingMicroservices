@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using NotificationService.Extensions;
 using NotificationService.IntegrationEvents.EventHandlers;
 using NotificationService.IntegrationEvents.Events;
+using RabbitMQ.Client;
 using Serilog;
 
 ServiceCollection services = new();
@@ -29,7 +30,18 @@ services.AddSingleton<IEventBus>(sp =>
         ConnectionRetryCount = 5,
         EventNameSuffix = "IntegrationEvent",
         SubscriberClientAppName = "NotificationService",
-        EventBusType = EventBusType.RabbitMQ
+        EventBusType = EventBusType.RabbitMQ,
+        Connection = new ConnectionFactory()
+        {
+            HostName = "c_rabbitmq",
+            Port = 5672,
+            UserName = "guest",
+            Password = "guest",
+            Ssl =
+            {
+                Enabled = true
+            }
+        }
     };
 
     return EventBusFactory.Create(config, sp);

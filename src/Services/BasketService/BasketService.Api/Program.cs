@@ -7,6 +7,7 @@ using BasketService.Api.IntegrationEvents.Events;
 using EventBus.Base;
 using EventBus.Base.Abstraction;
 using EventBus.Factory;
+using RabbitMQ.Client;
 using Serilog;
 
 var config = ConfigurationExtension.appConfig;
@@ -14,7 +15,11 @@ var serilogConf = ConfigurationExtension.serilogConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddConfiguration(config);
-
+builder.Host.UseDefaultServiceProvider((context, options) =>
+{
+    options.ValidateOnBuild = false;
+    options.ValidateScopes = false;
+});
 builder.Host.ConfigureLogging(s => s.ClearProviders()) // Remove all added providers before
             // https://github.com/serilog/serilog-aspnetcore
             .UseSerilog(
@@ -53,7 +58,18 @@ builder.Services.AddSingleton<IEventBus>(sp =>
         ConnectionRetryCount = 5,
         EventNameSuffix = "IntegrationEvent",
         SubscriberClientAppName = "BasketService",
-        EventBusType = EventBusType.RabbitMQ
+        EventBusType = EventBusType.RabbitMQ,
+        Connection = new ConnectionFactory()
+        {
+            HostName = "c_rabbitmq",
+            Port = 5672,
+            UserName = "guest",
+            Password = "guest",
+            Ssl =
+            {
+                Enabled = true
+            }
+        }
     };
 
     return EventBusFactory.Create(config, sp);
@@ -90,6 +106,6 @@ eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHan
 #endregion
 app.Start();
 
-app.RegisterWithConsul(app.Lifetime);
+app.RegisterWithConsul(app.Lifetime, configuration);
 
 app.WaitForShutdown();

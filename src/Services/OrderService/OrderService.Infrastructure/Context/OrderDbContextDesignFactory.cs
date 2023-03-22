@@ -13,7 +13,7 @@ namespace OrderService.Infrastructure.Context
 
         public OrderDbContext CreateDbContext(string[] args)
         {
-            var connStr = "Server=DESKTOP-TNOQ92E;Database=ECSellingOrderDB; User=ecsellingproject; Password=Password12*; MultipleActiveResultSets=true;Encrypt=false;";
+            var connStr = "Data Source=s_sqlserver; Initial Catalog= order; Persist Security Info=true; User ID = sa; Password=Password12*";
 
             var optionsBuilder = new DbContextOptionsBuilder<OrderDbContext>().UseSqlServer(connStr);
 

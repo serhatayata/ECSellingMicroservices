@@ -8,6 +8,11 @@ using Web.ApiGateway.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 IWebHostEnvironment environment = builder.Environment;
+builder.Host.UseDefaultServiceProvider((context, options) =>
+{
+    options.ValidateOnBuild = false;
+    options.ValidateScopes = false;
+});
 
 #region SERVICES
 builder.Services.AddCors(options =>
@@ -15,7 +20,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy", builder =>
     {
         builder.WithOrigins(
-                "http://localhost:2000",
+                configuration["Services:BlazorWebApp"],
                 configuration["Services:PaymentService"],
                 configuration["Services:OrderService"],
                 configuration["Services:BasketService"],
