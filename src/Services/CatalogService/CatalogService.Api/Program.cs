@@ -12,7 +12,6 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
     Args = args,
     ApplicationName = typeof(Program).Assembly.FullName,
     ContentRootPath = Directory.GetCurrentDirectory(),
-    EnvironmentName = Environments.Staging,
     WebRootPath = "Pics"
 });
 
@@ -56,15 +55,28 @@ builder.Services.ConfigureDbContext(configuration);
 var app = builder.Build();
 
 #region PIPELINE
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatalogService.Api v1"));
+}
+
+app.UseHttpsRedirection();
+
 app.UseStaticFiles(new StaticFileOptions()
 {
-    FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(environment.ContentRootPath, "Pics")),
+    FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(app.Environment.ContentRootPath, "Pics")),
     RequestPath = "/pics"
 });
-app.UseHttpsRedirection();
+
+app.UseRouting();
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(serilogConf)
@@ -72,8 +84,6 @@ Log.Logger = new LoggerConfiguration()
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("System Up and Running - Catalog Service");
-
-app.MapControllers();
 #endregion
 
 //Bu kýsým her istekte çalýþýyor olmamalý, ona göre ayarlanmalý.

@@ -49,8 +49,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IBasketRepository, RedisBasketRepository>();
 builder.Services.AddTransient<IIdentityService, IdentityService>();
 
-builder.Services.AddTransient<OrderCreatedIntegrationEventHandler>();
-
 builder.Services.AddSingleton<IEventBus>(sp =>
 {
     EventBusConfig config = new()
@@ -61,19 +59,14 @@ builder.Services.AddSingleton<IEventBus>(sp =>
         EventBusType = EventBusType.RabbitMQ,
         Connection = new ConnectionFactory()
         {
-            HostName = "c_rabbitmq",
-            Port = 5672,
-            UserName = "guest",
-            Password = "guest",
-            Ssl =
-            {
-                Enabled = true
-            }
+            HostName = "c_rabbitmq"
         }
     };
 
     return EventBusFactory.Create(config, sp);
 });
+
+builder.Services.AddTransient<OrderCreatedIntegrationEventHandler>();
 #endregion
 
 var app = builder.Build();
@@ -99,13 +92,13 @@ logger.LogInformation("System Up and Running - Basket Service");
 
 app.MapControllers();
 
-#region EventHandlers
-var eventBus = app.Services.GetRequiredService<IEventBus>();
-eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHandler>();
-#endregion
 #endregion
 app.Start();
 
 app.RegisterWithConsul(app.Lifetime, configuration);
+
+var eventBus = app.Services.GetRequiredService<IEventBus>();
+
+eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHandler>();
 
 app.WaitForShutdown();

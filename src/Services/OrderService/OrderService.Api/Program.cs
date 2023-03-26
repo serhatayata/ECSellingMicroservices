@@ -63,14 +63,7 @@ builder.Services.AddSingleton<IEventBus>(sp =>
         EventBusType = EventBusType.RabbitMQ,
         Connection = new ConnectionFactory()
         {
-            HostName = "c_rabbitmq",
-            Port = 5672,
-            UserName = "guest",
-            Password = "guest",
-            Ssl =
-            {
-                Enabled = true
-            }
+            HostName = "c_rabbitmq"
         }
     };
 
@@ -107,15 +100,13 @@ logger.LogInformation("System Up and Running - Order Service");
 
 app.MapControllers();
 
-#region EventHandlers
-var eventBus = app.Services.GetRequiredService<IEventBus>();
-
-eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHandler>();
-#endregion
-
 app.Start();
 
 app.RegisterWithConsul(app.Lifetime, configuration);
+
+var eventBus = app.Services.GetRequiredService<IEventBus>();
+
+eventBus.Subscribe<OrderCreatedIntegrationEvent, OrderCreatedIntegrationEventHandler>();
 
 app.WaitForShutdown();
 

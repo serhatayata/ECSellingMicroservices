@@ -10,7 +10,7 @@ services:
     networks:
       - net_frontend
       - net_apigateway
-
+    
   web.apigateway:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -20,6 +20,7 @@ services:
     networks:
       - net_apigateway
       - net_backendservices
+      #- net_frontend
 
   orderservice.api:
     environment:
@@ -43,6 +44,7 @@ services:
       - s_consul
       - s_rabbitmq
       - s_sqlserver
+
 
   identityservice.api:
     environment:
@@ -118,7 +120,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5001
     ports:
-      - "5001:5001"
+      - "5001"
     networks:
       - net_backendservices
     depends_on:
@@ -150,14 +152,14 @@ services:
       - net_apigateway
       - net_frontend
       - net_backendservices
-  
+
   s_sqlserver:
     user: root
     ports:
       - 1433:1433
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Enes123!
+      - MSSQL_SA_PASSWORD=Salih123!
     volumes:
       - sqlserver_data:/var/opt/mssql/data
       - sqlserver_log:/var/opt/mssql/log
@@ -182,6 +184,7 @@ services:
       - /opt/app_data/redis/:/data
     networks:
       - net_backendservices
+
 
 networks:
   net_apigateway:

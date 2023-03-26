@@ -54,14 +54,7 @@ builder.Services.AddSingleton<IEventBus>(sp =>
         EventBusType = EventBusType.RabbitMQ,
         Connection = new ConnectionFactory()
         {
-            HostName = "c_rabbitmq",
-            Port = 5672,
-            UserName = "guest",
-            Password = "guest",
-            Ssl =
-            {
-                Enabled = true
-            }
+            HostName = "c_rabbitmq"
         }
     };
 

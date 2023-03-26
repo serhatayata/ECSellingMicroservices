@@ -7,6 +7,7 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -20,23 +21,30 @@ namespace EventBus.RabbitMQ
         private readonly IConnectionFactory connectionFactory;
         private readonly IModel consumerChannel;
 
-        public EventBusRabbitMQ(EventBusConfig eventBusConfig, IServiceProvider serviceProvider) : base(serviceProvider, eventBusConfig)
+        public EventBusRabbitMQ(EventBusConfig config, IServiceProvider serviceProvider) : base(serviceProvider, config)
         {
-            if (eventBusConfig.Connection != null)
+            if (EventBusConfig.Connection != null)
             {
-                var connJson = JsonConvert.SerializeObject(EventBusConfig, new JsonSerializerSettings()
+                if (EventBusConfig.Connection is ConnectionFactory)
+                    connectionFactory = EventBusConfig.Connection as ConnectionFactory;
+                else
                 {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
+                    var connJson = JsonConvert.SerializeObject(EventBusConfig.Connection, new JsonSerializerSettings()
+                    {
+                        // Self referencing loop detected for property 
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
 
-                connectionFactory = JsonConvert.DeserializeObject<ConnectionFactory>(connJson);
+                    connectionFactory = JsonConvert.DeserializeObject<ConnectionFactory>(connJson);
+                }
             }
             else
-                connectionFactory = new ConnectionFactory();
+                connectionFactory = new ConnectionFactory(); //Create with default values
 
-            persistentConnection = new RabbitMQPersistentConnection(connectionFactory, eventBusConfig.ConnectionRetryCount);
+            persistentConnection = new RabbitMQPersistentConnection(connectionFactory, config.ConnectionRetryCount);
 
             consumerChannel = CreateConsumerChannel();
+
             SubsManager.OnEventRemoved += SubsManager_OnEventRemoved;
         }
 
@@ -45,29 +53,38 @@ namespace EventBus.RabbitMQ
             eventName = ProcessEventName(eventName);
 
             if (!persistentConnection.IsConnected)
+            {
                 persistentConnection.TryConnect();
+            }
 
-            //We don't remove the queue, just stopped listening to it. Exchange and queue are seperated.
-            consumerChannel.QueueUnbind(queue: eventName, exchange: EventBusConfig.DefaultTopicName, routingKey: eventName);
+            consumerChannel.QueueUnbind(queue: eventName,
+                exchange: EventBusConfig.DefaultTopicName,
+                routingKey: eventName);
+
             if (SubsManager.IsEmpty)
+            {
                 consumerChannel.Close();
+            }
         }
 
         public override void Publish(IntegrationEvent @event)
         {
             if (!persistentConnection.IsConnected)
+            {
                 persistentConnection.TryConnect();
+            }
 
             var policy = Policy.Handle<BrokerUnreachableException>()
-                               .Or<SocketException>()
-                               .WaitAndRetry(EventBusConfig.ConnectionRetryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
-                               {
-                                   //log
-                               });
+                .Or<SocketException>()
+                .WaitAndRetry(EventBusConfig.ConnectionRetryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                {
+                    // log
+                });
+
             var eventName = @event.GetType().Name;
             eventName = ProcessEventName(eventName);
 
-            consumerChannel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName, type: "direct");
+            consumerChannel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName, type: "direct"); // Ensure exchange exists while publishing
 
             var message = JsonConvert.SerializeObject(@event);
             var body = Encoding.UTF8.GetBytes(message);
@@ -75,27 +92,24 @@ namespace EventBus.RabbitMQ
             policy.Execute(() =>
             {
                 var properties = consumerChannel.CreateBasicProperties();
-                properties.DeliveryMode = 2; //Persistent
+                properties.DeliveryMode = 2; // persistent
 
-                //QUEUE BIND AND DECLARE HAS TO EXIST IN CONSUMER SIDE, WE CAN OPEN THEM FOR A TEST
-                //consumerChannel.QueueDeclare(queue: GetSubName(eventName),
-                //                             durable: true,
-                //                             exclusive: false,
-                //                             autoDelete: false,
-                //                             arguments: null);
+                //consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while publishing
+                //                     durable: true,
+                //                     exclusive: false,
+                //                     autoDelete: false,
+                //                     arguments: null);
 
-                //Binding process has to be on consumer side, but we do this here to test...
                 //consumerChannel.QueueBind(queue: GetSubName(eventName),
-                //              exchange: EventBusConfig.DefaultTopicName,
-                //              routingKey: eventName);
+                //                  exchange: EventBusConfig.DefaultTopicName,
+                //                  routingKey: eventName);
 
                 consumerChannel.BasicPublish(
                     exchange: EventBusConfig.DefaultTopicName,
                     routingKey: eventName,
                     mandatory: true,
                     basicProperties: properties,
-                    body: body
-                    );
+                    body: body);
             });
         }
 
@@ -104,20 +118,22 @@ namespace EventBus.RabbitMQ
             var eventName = typeof(T).Name;
             eventName = ProcessEventName(eventName);
 
-            if(!SubsManager.HasSubscriptionsForEvent(eventName))
+            if (!SubsManager.HasSubscriptionsForEvent(eventName))
             {
                 if (!persistentConnection.IsConnected)
+                {
                     persistentConnection.TryConnect();
+                }
 
-                consumerChannel.QueueDeclare(queue: GetSubName(eventName),
-                                             durable: true,
-                                             exclusive: false,
-                                             autoDelete: false,
-                                             arguments: null);
+                consumerChannel.QueueDeclare(queue: GetSubName(eventName), // Ensure queue exists while consuming
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
 
                 consumerChannel.QueueBind(queue: GetSubName(eventName),
-                                          exchange: EventBusConfig.DefaultTopicName,
-                                          routingKey: eventName);
+                                  exchange: EventBusConfig.DefaultTopicName,
+                                  routingKey: eventName);
             }
 
             SubsManager.AddSubscription<T, TH>();
@@ -126,18 +142,21 @@ namespace EventBus.RabbitMQ
 
         public override void UnSubscribe<T, TH>() 
         {
-            //At constructor, we created an event for on event removed so that the queue can be removed.
             SubsManager.RemoveSubscription<T, TH>();
         }
 
         private IModel CreateConsumerChannel()
         {
             if (!persistentConnection.IsConnected)
+            {
                 persistentConnection.TryConnect();
+            }
 
             var channel = persistentConnection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName, type: "direct");
+            channel.ExchangeDeclare(exchange: EventBusConfig.DefaultTopicName,
+                                    type: "direct");
+
             return channel;
         }
 
@@ -149,25 +168,29 @@ namespace EventBus.RabbitMQ
 
                 consumer.Received += Consumer_Received;
 
-                consumerChannel.BasicConsume(queue: GetSubName(eventName), autoAck: false, consumer: consumer);
+                consumerChannel.BasicConsume(
+                    queue: GetSubName(eventName),
+                    autoAck: false,
+                    consumer: consumer);
             }
         }
 
-        private void Consumer_Received(object sender, BasicDeliverEventArgs @event)
+        private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
         {
-            var eventName = @event.RoutingKey;
+            var eventName = eventArgs.RoutingKey;
             eventName = ProcessEventName(eventName);
-            var message = Encoding.UTF8.GetString(@event.Body.Span);
+            var message = Encoding.UTF8.GetString(eventArgs.Body.Span);
 
             try
             {
-                ProcessEvent(eventName, message).GetAwaiter().GetResult();
+                await ProcessEvent(eventName, message);
             }
             catch (Exception ex)
             {
-                //Log
+                // logging
             }
-            consumerChannel.BasicAck(@event.DeliveryTag, multiple: false);
+
+            consumerChannel.BasicAck(eventArgs.DeliveryTag, multiple: false);
         }
     }
 }
