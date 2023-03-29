@@ -55,28 +55,26 @@ builder.Services.ConfigureDbContext(configuration);
 var app = builder.Build();
 
 #region PIPELINE
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatalogService.Api v1"));
-}
+
+app.UseDeveloperExceptionPage();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions()
 {
-    FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(app.Environment.ContentRootPath, "Pics")),
-    RequestPath = "/pics"
+    //FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(builder.Environment.ContentRootPath, "Pics")),
+    FileProvider = new PhysicalFileProvider(
+                            Path.Combine(builder.Environment.ContentRootPath, @"Pics")),
+    RequestPath = new PathString("/pics")
 });
 
 app.UseRouting();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.MapControllers();
 
 Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(serilogConf)
@@ -86,7 +84,6 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("System Up and Running - Catalog Service");
 #endregion
 
-//Bu kýsým her istekte çalýþýyor olmamalý, ona göre ayarlanmalý.
 app.MigrateDbContext<CatalogContext>((context, services) =>
 {
     var env = services.GetService<IWebHostEnvironment>();

@@ -1,6 +1,9 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+RUN mkdir -p /app/Pics
+COPY src/Services/CatalogService/CatalogService.Api/Pics  /app/Pics
+
 WORKDIR /app
 EXPOSE 5004
 
@@ -13,7 +16,7 @@ WORKDIR "/src/src/Services/CatalogService/CatalogService.Api"
 RUN dotnet build "CatalogService.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "CatalogService.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "CatalogService.Api.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

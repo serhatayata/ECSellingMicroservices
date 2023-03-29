@@ -10,14 +10,15 @@ namespace CatalogService.Api.Infrastructure.Context
     {
         public async Task SeedAsync(CatalogContext context, IWebHostEnvironment env, ILogger<CatalogContextSeed> logger)
         {
-            var policy = Policy.Handle<SqlException>()
-                .WaitAndRetryAsync(
-                retryCount: 3,
-                sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
-                onRetry: (exception, timespan, retry, ctx) =>
-                {
-                    logger.LogWarning(exception, "Exception while uploading seed data");
-                });
+            var policy = Policy.Handle<SqlException>().
+                WaitAndRetryAsync(
+                    retryCount: 3,
+                    sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
+                    onRetry: (exception, timeSpan, retry, ctx) =>
+                    {
+                        logger.LogWarning(exception, "[{prefix}] Exception {ExceptionType} with message {Message} detected on attempt {retry} of {retries}", nameof(logger), exception.GetType().Name, exception.Message, retry, 3);
+                    }
+                );
 
             var setupDirPath = Path.Combine(env.ContentRootPath, "Infrastructure", "Setup", "SeedFiles");
             var picturePath = "Pics";
