@@ -159,7 +159,7 @@ services:
       - 1433:1433
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Password12*
+      - MSSQL_SA_PASSWORD=Serhat123!
     volumes:
       - sqlserver_data:/var/opt/mssql/data
       - sqlserver_log:/var/opt/mssql/log
